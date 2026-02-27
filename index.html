@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sondage KPI — Outil EAD</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0D1F3C;
+    --blue: #1A4B8C;
+    --accent: #E8A030;
+    --accent-light: #FDF3E3;
+    --steel: #4A6890;
+    --light: #F4F7FC;
+    --white: #FFFFFF;
+    --border: #D0DCF0;
+    --text: #1A2840;
+    --muted: #6B7FA0;
+    --success: #2A8C5A;
+    --error: #C0392B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--light);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--navy);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(26,75,140,0.4);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 30%;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(232,160,48,0.15);
+  }
+  .header-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 32px 40px;
+    position: relative; z-index: 1;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--navy);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 3px;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: #FFFFFF;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .header h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .header-sub {
+    color: #A8BCD8;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 540px;
+  }
+  .progress-bar-wrap {
+    margin-top: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+  .progress-text {
+    color: #A8BCD8;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* SECTIONS */
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  .section {
+    background: var(--white);
+    border-radius: 12px;
+    margin-bottom: 28px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(13,31,60,0.06);
+    display: none;
+    animation: fadeUp 0.4s ease;
+  }
+  .section.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-head {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .section-num {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--navy);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--navy);
+    line-height: 1.3;
+  }
+  .section-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+  .section-body {
+    padding: 24px 28px;
+    display: grid;
+    gap: 20px;
+  }
+  .section-body.two-col {
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 600px) {
+    .section-body.two-col { grid-template-columns: 1fr; }
+  }
+
+  /* FORM ELEMENTS */
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field.span2 { grid-column: span 2; }
+  @media (max-width: 600px) { .field.span2 { grid-column: span 1; } }
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: 0.2px;
+  }
+  label span.req { color: var(--accent); margin-left: 3px; }
+  label .hint {
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 12px;
+    margin-left: 6px;
+    display: block;
+    margin-top: 2px;
+  }
+
+  input[type=text], input[type=number], select, textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--white);
+    transition: border 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  input[type=number] { -moz-appearance: textfield; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(26,75,140,0.10);
+  }
+  input.error, select.error { border-color: var(--error); }
+  textarea { resize: vertical; min-height: 90px; }
+
+  .input-unit {
+    position: relative;
+  }
+  .input-unit input { padding-right: 52px; }
+  .unit {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  /* RADIO GRID */
+  .radio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+  }
+  .radio-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .radio-card:hover { border-color: var(--blue); background: var(--light); }
+  .radio-card input[type=radio] { display: none; }
+  .radio-card .dot {
+    width: 17px; height: 17px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .radio-card input:checked ~ .dot {
+    border-color: var(--blue);
+    background: var(--blue);
+  }
+  .radio-card input:checked ~ .dot::after {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: white;
+  }
+  .radio-card input:checked ~ .label-text { color: var(--blue); font-weight: 500; }
+  .radio-card .label-text { font-size: 13px; color: var(--text); }
+
+  /* CHECKBOX GRID */
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+  .check-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .check-card:hover { border-color: var(--blue); background: var(--light); }
+  .check-card input[type=checkbox] { display: none; }
+  .check-card .box {
+    width: 17px; height: 17px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .check-card input:checked ~ .box {
+    border-color: var(--blue);
+    background: var(--blue);
+  }
+  .check-card input:checked ~ .box::after {
+    content: '✓';
+    font-size: 10px;
+    color: white;
+    font-weight: 700;
+  }
+  .check-card input:checked ~ .label-text { color: var(--blue); font-weight: 500; }
+  .check-card .label-text { font-size: 13px; color: var(--text); }
+
+  /* SCALE */
+  .scale-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .scale-labels { display: flex; justify-content: space-between; }
+  .scale-label { font-size: 11px; color: var(--muted); }
+  .scale-btns { display: flex; gap: 6px; }
+  .scale-btns label {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  .scale-btns input[type=radio] { display: none; }
+  .scale-btn {
+    width: 100%;
+    padding: 9px 0;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .scale-btns input:checked + .scale-btn {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: white;
+  }
+  .scale-btns label:hover .scale-btn { border-color: var(--blue); color: var(--blue); }
+  .scale-num { font-size: 11px; color: var(--muted); }
+
+  /* PROTOCOL BOX */
+  .protocol-box {
+    background: linear-gradient(135deg, #E8F0FB 0%, #F4F7FC 100%);
+    border: 1px solid #C5D4EE;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: grid;
+    gap: 8px;
+  }
+  .protocol-box .ptitle {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+  .protocol-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .protocol-item .ico {
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* CONSENT */
+  .consent-box {
+    background: var(--accent-light);
+    border: 1.5px solid #F0C070;
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .consent-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .consent-label input[type=checkbox] { display: none; }
+  .consent-check {
+    width: 20px; height: 20px;
+    border-radius: 5px;
+    border: 2px solid #D4A050;
+    background: white;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .consent-label input:checked ~ .consent-check {
+    background: var(--navy);
+    border-color: var(--navy);
+  }
+  .consent-label input:checked ~ .consent-check::after {
+    content: '✓';
+    font-size: 12px;
+    color: white;
+    font-weight: 700;
+  }
+
+  /* NAVIGATION */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding: 0 4px;
+  }
+  .btn {
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--navy);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--blue); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(13,31,60,0.25); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+  }
+  .btn-secondary:hover { color: var(--navy); border-color: var(--navy); }
+  .btn-submit {
+    background: var(--success);
+    color: white;
+    padding: 14px 36px;
+    font-size: 15px;
+  }
+  .btn-submit:hover { background: #236847; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(42,140,90,0.3); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+  /* SUCCESS */
+  #success {
+    display: none;
+    text-align: center;
+    padding: 60px 32px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(13,31,60,0.06);
+  }
+  .success-icon {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2A8C5A, #1E6B44);
+    margin: 0 auto 24px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+  }
+  #success h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--navy);
+    margin-bottom: 12px;
+  }
+  #success p { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 400px; margin: 0 auto 28px; }
+  .summary-table {
+    text-align: left;
+    background: var(--light);
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .sk { color: var(--muted); }
+  .summary-row .sv { font-weight: 600; color: var(--navy); }
+
+  /* ERROR MSG */
+  .error-msg {
+    font-size: 12px;
+    color: var(--error);
+    margin-top: 2px;
+    display: none;
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge">Étude KPI · EAD</div>
+    <h1>Mesure de performance<br>de l'<em>Outil EAD</em></h1>
+    <p class="header-sub">Ce formulaire recueille les données de session nécessaires à l'étude statistique des KPI de l'outil EAD. Merci de le remplir immédiatement après chaque session.</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:20%"></div>
+      </div>
+      <div class="progress-text" id="progressText">Étape 1 / 5</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ===================== SECTION 1: PROFIL ===================== -->
+  <div class="section active" id="sec1">
+    <div class="section-head">
+      <div class="section-num">1</div>
+      <div>
+        <div class="section-title">Profil de l'expert</div>
+        <div class="section-desc">Informations sur votre expérience et votre contexte d'utilisation de l'outil</div>
+      </div>
+    </div>
+    <div class="section-body two-col">
+
+      <div class="field">
+        <label>Années d'expérience en expertise automobile <span class="req">*</span></label>
+        <div class="radio-grid" id="exp-group">
+          <label class="radio-card"><input type="radio" name="experience" value="< 2 ans"><span class="dot"></span><span class="label-text">Moins de 2 ans</span></label>
+          <label class="radio-card"><input type="radio" name="experience" value="2–5 ans"><span class="dot"></span><span class="label-text">2 à 5 ans</span></label>
+          <label class="radio-card"><input type="radio" name="experience" value="5–10 ans"><span class="dot"></span><span class="label-text">5 à 10 ans</span></label>
+          <label class="radio-card"><input type="radio" name="experience" value="> 10 ans"><span class="dot"></span><span class="label-text">Plus de 10 ans</span></label>
+        </div>
+        <div class="error-msg" id="err-experience">Veuillez sélectionner votre expérience.</div>
+      </div>
+
+      <div class="field">
+        <label>Fréquence d'utilisation de l'outil EAD <span class="req">*</span></label>
+        <div class="radio-grid" id="freq-group">
+          <label class="radio-card"><input type="radio" name="frequence" value="< 1/semaine"><span class="dot"></span><span class="label-text">Moins d'1 fois/sem.</span></label>
+          <label class="radio-card"><input type="radio" name="frequence" value="1–5/semaine"><span class="dot"></span><span class="label-text">1 à 5 fois/sem.</span></label>
+          <label class="radio-card"><input type="radio" name="frequence" value="1/jour"><span class="dot"></span><span class="label-text">1 fois/jour</span></label>
+          <label class="radio-card"><input type="radio" name="frequence" value="> 1/jour"><span class="dot"></span><span class="label-text">Plusieurs/jour</span></label>
+        </div>
+        <div class="error-msg" id="err-frequence">Veuillez sélectionner votre fréquence.</div>
+      </div>
+
+      <div class="field">
+        <label>Région <span class="req">*</span></label>
+        <select id="region">
+          <option value="">— Sélectionner une région —</option>
+          <option>Île-de-France</option>
+          <option>Auvergne-Rhône-Alpes</option>
+          <option>Nouvelle-Aquitaine</option>
+          <option>Occitanie</option>
+          <option>Provence-Alpes-Côte d'Azur</option>
+          <option>Grand Est</option>
+          <option>Hauts-de-France</option>
+          <option>Pays de la Loire</option>
+          <option>Normandie</option>
+          <option>Bretagne</option>
+          <option>Centre-Val de Loire</option>
+          <option>Bourgogne-Franche-Comté</option>
+          <option>Autre / DOM-TOM</option>
+        </select>
+        <div class="error-msg" id="err-region">Veuillez sélectionner votre région.</div>
+      </div>
+
+      <div class="field">
+        <label>Niveau de maîtrise de l'outil EAD <span class="req">*</span></label>
+        <div class="scale-wrap">
+          <div class="scale-labels">
+            <span class="scale-label">Débutant</span>
+            <span class="scale-label">Expert</span>
+          </div>
+          <div class="scale-btns" id="maitrise-group">
+            <label><input type="radio" name="maitrise" value="1"><div class="scale-btn">1</div></label>
+            <label><input type="radio" name="maitrise" value="2"><div class="scale-btn">2</div></label>
+            <label><input type="radio" name="maitrise" value="3"><div class="scale-btn">3</div></label>
+            <label><input type="radio" name="maitrise" value="4"><div class="scale-btn">4</div></label>
+            <label><input type="radio" name="maitrise" value="5"><div class="scale-btn">5</div></label>
+          </div>
+        </div>
+        <div class="error-msg" id="err-maitrise">Veuillez indiquer votre niveau.</div>
+      </div>
+
+    </div>
+    <div class="nav-row">
+      <div></div>
+      <button class="btn btn-primary" onclick="goNext(1)">Étape suivante →</button>
+    </div>
+  </div>
+
+  <!-- ===================== SECTION 2: SINISTRE ===================== -->
+  <div class="section" id="sec2">
+    <div class="section-head">
+      <div class="section-num">2</div>
+      <div>
+        <div class="section-title">Type de sinistre</div>
+        <div class="section-desc">Caractéristiques du dossier traité lors de cette session</div>
+      </div>
+    </div>
+    <div class="section-body two-col">
+
+      <div class="field">
+        <label>Catégorie de dommages <span class="req">*</span></label>
+        <select id="categorie">
+          <option value="">— Sélectionner —</option>
+          <option>Accrochage / Rayure</option>
+          <option>Carrosserie légère (bosses, déformations)</option>
+          <option>Carrosserie lourde (remplacement pièces)</option>
+          <option>Bris de glace</option>
+          <option>Dommages mécaniques</option>
+          <option>Dommages multiple / Total</option>
+          <option>Vol / Vandalisme</option>
+          <option>Autre</option>
+        </select>
+        <div class="error-msg" id="err-categorie">Veuillez sélectionner une catégorie.</div>
+      </div>
+
+      <div class="field">
+        <label>Type de véhicule <span class="req">*</span></label>
+        <select id="vehicule">
+          <option value="">— Sélectionner —</option>
+          <option>Voiture particulière (VP)</option>
+          <option>Véhicule utilitaire léger (VUL)</option>
+          <option>Poids lourd / PL</option>
+          <option>Deux-roues</option>
+          <option>Véhicule électrique / hybride</option>
+          <option>Véhicule de collection / prestige</option>
+          <option>Autre</option>
+        </select>
+        <div class="error-msg" id="err-vehicule">Veuillez sélectionner un type de véhicule.</div>
+      </div>
+
+      <div class="field span2">
+        <label>Complexité estimée du dossier <span class="req">*</span></label>
+        <div class="scale-wrap">
+          <div class="scale-labels">
+            <span class="scale-label">Simple</span>
+            <span class="scale-label">Très complexe</span>
+          </div>
+          <div class="scale-btns" id="complexite-group">
+            <label><input type="radio" name="complexite" value="1"><div class="scale-btn">1</div></label>
+            <label><input type="radio" name="complexite" value="2"><div class="scale-btn">2</div></label>
+            <label><input type="radio" name="complexite" value="3"><div class="scale-btn">3</div></label>
+            <label><input type="radio" name="complexite" value="4"><div class="scale-btn">4</div></label>
+            <label><input type="radio" name="complexite" value="5"><div class="scale-btn">5</div></label>
+          </div>
+        </div>
+        <div class="error-msg" id="err-complexite">Veuillez indiquer la complexité.</div>
+      </div>
+
+      <div class="field span2">
+        <label>Pièces remplacées concernées (plusieurs choix possibles)</label>
+        <div class="checkbox-grid">
+          <label class="check-card"><input type="checkbox" name="pieces" value="Pare-chocs"><span class="box"></span><span class="label-text">Pare-chocs</span></label>
+          <label class="check-card"><input type="checkbox" name="pieces" value="Portière"><span class="box"></span><span class="label-text">Portière</span></label>
+          <label class="check-card"><input type="checkbox" name="pieces" value="Aile / capot"><span class="box"></span><span class="label-text">Aile / Capot</span></label>
+          <label class="check-card"><input type="checkbox" name="pieces" value="Vitrage"><span class="box"></span><span class="label-text">Vitrage</span></label>
+          <label class="check-card"><input type="checkbox" name="pieces" value="Moteur / Mécanique"><span class="box"></span><span class="label-text">Mécanique</span></label>
+          <label class="check-card"><input type="checkbox" name="pieces" value="Structure / Châssis"><span class="box"></span><span class="label-text">Structure / Châssis</span></label>
+        </div>
+      </div>
+
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goPrev(2)">← Précédent</button>
+      <button class="btn btn-primary" onclick="goNext(2)">Étape suivante →</button>
+    </div>
+  </div>
+
+  <!-- ===================== SECTION 3: MESURES ===================== -->
+  <div class="section" id="sec3">
+    <div class="section-head">
+      <div class="section-num">3</div>
+      <div>
+        <div class="section-title">Mesures de performance</div>
+        <div class="section-desc">Temps et nombre de clicks par étape — à renseigner immédiatement après la session</div>
+      </div>
+    </div>
+    <div class="section-body two-col">
+
+      <div class="field span2">
+        <div class="protocol-box">
+          <div class="ptitle">⏱ Protocole de mesure</div>
+          <div class="protocol-item"><span class="ico">🔕</span>Désactivez toutes les notifications avant la session</div>
+          <div class="protocol-item"><span class="ico">📶</span>Vérifiez la qualité de votre connexion réseau</div>
+          <div class="protocol-item"><span class="ico">⌚</span>Commencez le chronomètre à l'ouverture du dossier et arrêtez-le à la validation de chaque étape</div>
+          <div class="protocol-item"><span class="ico">✍️</span>Renseignez ce formulaire dans les 5 minutes suivant la session</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Identification — Temps <span class="req">*</span><span class="hint">Durée de l'étape d'identification du véhicule</span></label>
+        <div class="input-unit">
+          <input type="number" id="id_temps" placeholder="ex: 62" min="1" max="600">
+          <span class="unit">sec</span>
+        </div>
+        <div class="error-msg" id="err-id_temps">Valeur requise (entre 1 et 600s).</div>
+      </div>
+
+      <div class="field">
+        <label>Identification — Clicks <span class="req">*</span><span class="hint">Nombre total de clicks sur cette étape</span></label>
+        <div class="input-unit">
+          <input type="number" id="id_clicks" placeholder="ex: 47" min="1" max="300">
+          <span class="unit">clics</span>
+        </div>
+        <div class="error-msg" id="err-id_clicks">Valeur requise (entre 1 et 300).</div>
+      </div>
+
+      <div class="field">
+        <label>Évaluation des dommages — Temps <span class="req">*</span></label>
+        <div class="input-unit">
+          <input type="number" id="eval_temps" placeholder="ex: 51" min="1" max="600">
+          <span class="unit">sec</span>
+        </div>
+        <div class="error-msg" id="err-eval_temps">Valeur requise.</div>
+      </div>
+
+      <div class="field">
+        <label>Évaluation des dommages — Clicks <span class="req">*</span></label>
+        <div class="input-unit">
+          <input type="number" id="eval_clicks" placeholder="ex: 14" min="1" max="200">
+          <span class="unit">clics</span>
+        </div>
+        <div class="error-msg" id="err-eval_clicks">Valeur requise.</div>
+      </div>
+
+      <div class="field">
+        <label>Chiffrage — Temps <span class="req">*</span></label>
+        <div class="input-unit">
+          <input type="number" id="chif_temps" placeholder="ex: 118" min="1" max="900">
+          <span class="unit">sec</span>
+        </div>
+        <div class="error-msg" id="err-chif_temps">Valeur requise.</div>
+      </div>
+
+      <div class="field">
+        <label>Génération & envoi — Temps <span class="req">*</span></label>
+        <div class="input-unit">
+          <input type="number" id="gen_temps" placeholder="ex: 44" min="1" max="300">
+          <span class="unit">sec</span>
+        </div>
+        <div class="error-msg" id="err-gen_temps">Valeur requise.</div>
+      </div>
+
+      <div class="field">
+        <label>Génération & envoi — Clicks <span class="req">*</span></label>
+        <div class="input-unit">
+          <input type="number" id="gen_clicks" placeholder="ex: 22" min="1" max="200">
+          <span class="unit">clics</span>
+        </div>
+        <div class="error-msg" id="err-gen_clicks">Valeur requise.</div>
+      </div>
+
+      <div class="field">
+        <label>Temps total (calculé automatiquement)</label>
+        <div class="input-unit">
+          <input type="text" id="total_temps" readonly placeholder="—" style="background:#F4F7FC; color: var(--blue); font-weight:600;">
+          <span class="unit">sec</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goPrev(3)">← Précédent</button>
+      <button class="btn btn-primary" onclick="goNext(3)">Étape suivante →</button>
+    </div>
+  </div>
+
+  <!-- ===================== SECTION 4: CONDITIONS ===================== -->
+  <div class="section" id="sec4">
+    <div class="section-head">
+      <div class="section-num">4</div>
+      <div>
+        <div class="section-title">Conditions de la session</div>
+        <div class="section-desc">Contexte technique et incidents éventuels</div>
+      </div>
+    </div>
+    <div class="section-body two-col">
+
+      <div class="field">
+        <label>Qualité de la connexion réseau <span class="req">*</span></label>
+        <div class="radio-grid" id="reseau-group">
+          <label class="radio-card"><input type="radio" name="reseau" value="Excellente"><span class="dot"></span><span class="label-text">Excellente</span></label>
+          <label class="radio-card"><input type="radio" name="reseau" value="Bonne"><span class="dot"></span><span class="label-text">Bonne</span></label>
+          <label class="radio-card"><input type="radio" name="reseau" value="Moyenne"><span class="dot"></span><span class="label-text">Moyenne</span></label>
+          <label class="radio-card"><input type="radio" name="reseau" value="Mauvaise"><span class="dot"></span><span class="label-text">Mauvaise</span></label>
+        </div>
+        <div class="error-msg" id="err-reseau">Veuillez évaluer la connexion.</div>
+      </div>
+
+      <div class="field">
+        <label>Interruptions pendant la session <span class="req">*</span></label>
+        <div class="radio-grid" id="interrupt-group">
+          <label class="radio-card"><input type="radio" name="interruption" value="Aucune"><span class="dot"></span><span class="label-text">Aucune</span></label>
+          <label class="radio-card"><input type="radio" name="interruption" value="Brève (< 1 min)"><span class="dot"></span><span class="label-text">Brève (< 1 min)</span></label>
+          <label class="radio-card"><input type="radio" name="interruption" value="Longue (> 1 min)"><span class="dot"></span><span class="label-text">Longue (> 1 min)</span></label>
+        </div>
+        <div class="error-msg" id="err-interruption">Veuillez sélectionner une option.</div>
+      </div>
+
+      <div class="field">
+        <label>Difficultés rencontrées (plusieurs choix possibles)</label>
+        <div class="checkbox-grid">
+          <label class="check-card"><input type="checkbox" name="difficultes" value="Lenteur de l'outil"><span class="box"></span><span class="label-text">Lenteur de l'outil</span></label>
+          <label class="check-card"><input type="checkbox" name="difficultes" value="Identification véhicule difficile"><span class="box"></span><span class="label-text">Identification véhicule</span></label>
+          <label class="check-card"><input type="checkbox" name="difficultes" value="Chiffrage complexe"><span class="box"></span><span class="label-text">Chiffrage complexe</span></label>
+          <label class="check-card"><input type="checkbox" name="difficultes" value="Bug / Erreur"><span class="box"></span><span class="label-text">Bug / Erreur outil</span></label>
+          <label class="check-card"><input type="checkbox" name="difficultes" value="Interface peu intuitive"><span class="box"></span><span class="label-text">Interface peu intuitive</span></label>
+          <label class="check-card"><input type="checkbox" name="difficultes" value="Autre"><span class="box"></span><span class="label-text">Autre</span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Satisfaction globale de la session <span class="req">*</span></label>
+        <div class="scale-wrap">
+          <div class="scale-labels">
+            <span class="scale-label">Très insatisfait</span>
+            <span class="scale-label">Très satisfait</span>
+          </div>
+          <div class="scale-btns" id="satisfaction-group">
+            <label><input type="radio" name="satisfaction" value="1"><div class="scale-btn">1</div></label>
+            <label><input type="radio" name="satisfaction" value="2"><div class="scale-btn">2</div></label>
+            <label><input type="radio" name="satisfaction" value="3"><div class="scale-btn">3</div></label>
+            <label><input type="radio" name="satisfaction" value="4"><div class="scale-btn">4</div></label>
+            <label><input type="radio" name="satisfaction" value="5"><div class="scale-btn">5</div></label>
+          </div>
+        </div>
+        <div class="error-msg" id="err-satisfaction">Veuillez indiquer votre satisfaction.</div>
+      </div>
+
+      <div class="field span2">
+        <label>Commentaire libre — incidents, particularités, suggestions<span class="hint">Ce champ est crucial : notez tout ce qui a pu influencer vos mesures</span></label>
+        <textarea id="commentaire" placeholder="Ex: Légère latence lors du chiffrage, véhicule atypique non reconnu automatiquement, navigation confuse sur l'étape évaluation…"></textarea>
+      </div>
+
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goPrev(4)">← Précédent</button>
+      <button class="btn btn-primary" onclick="goNext(4)">Étape suivante →</button>
+    </div>
+  </div>
+
+  <!-- ===================== SECTION 5: CONFIRMATION ===================== -->
+  <div class="section" id="sec5">
+    <div class="section-head">
+      <div class="section-num">5</div>
+      <div>
+        <div class="section-title">Confirmation et envoi</div>
+        <div class="section-desc">Vérifiez vos réponses avant soumission</div>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div id="recap" class="summary-table" style="max-width:100%">
+        <!-- filled by JS -->
+      </div>
+
+      <div class="consent-box">
+        <label class="consent-label">
+          <input type="checkbox" id="consentement">
+          <div class="consent-check"></div>
+          <span>Je certifie que ces données ont été mesurées directement lors d'une session réelle avec l'outil EAD, sans reconstitution de mémoire, et que je consens à leur utilisation dans le cadre de l'étude KPI interne.</span>
+        </label>
+      </div>
+      <div class="error-msg" id="err-consentement" style="display:none;">Vous devez cocher la case de consentement.</div>
+
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goPrev(5)">← Précédent</button>
+      <button class="btn btn-submit" onclick="submitForm()">✓ Soumettre ma session</button>
+    </div>
+  </div>
+
+  <!-- ===================== SUCCESS ===================== -->
+  <div id="success">
+    <div class="success-icon">✓</div>
+    <h2>Session enregistrée !</h2>
+    <p>Merci pour votre contribution. Vos données vont permettre d'affiner les KPI de l'outil EAD et d'améliorer votre expérience.</p>
+    <div class="summary-table" id="successSummary"></div>
+    <div style="margin-top:24px;">
+      <button class="btn btn-primary" onclick="resetForm()">Ajouter une nouvelle session</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Étude KPI — Outil EAD · Confidentiel · Usage interne uniquement
+</div>
+
+<script>
+let currentSection = 1;
+const totalSections = 5;
+const responses = {};
+
+// Auto-calculate total time
+['id_temps','eval_temps','chif_temps','gen_temps'].forEach(id => {
+  document.getElementById(id).addEventListener('input', calcTotal);
+});
+function calcTotal() {
+  const vals = ['id_temps','eval_temps','chif_temps','gen_temps'].map(id => parseInt(document.getElementById(id).value)||0);
+  const total = vals.reduce((a,b)=>a+b,0);
+  document.getElementById('total_temps').value = total > 0 ? total : '';
+}
+
+function updateProgress(sec) {
+  const pct = (sec / totalSections) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `Étape ${sec} / ${totalSections}`;
+}
+
+function showSection(n) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec' + n).classList.add('active');
+  updateProgress(n);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if(n === 5) buildRecap();
+}
+
+function getRadio(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : null;
+}
+function getCheckboxes(name) {
+  return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(e=>e.value).join(', ') || '—';
+}
+
+function showErr(id, show) {
+  const el = document.getElementById('err-' + id);
+  if(el) el.style.display = show ? 'block' : 'none';
+}
+function showFieldErr(id, show) {
+  const el = document.getElementById(id);
+  if(el) el.classList.toggle('error', show);
+}
+
+function validateSection(n) {
+  let ok = true;
+  if(n === 1) {
+    const exp = getRadio('experience');
+    const freq = getRadio('frequence');
+    const region = document.getElementById('region').value;
+    const maitrise = getRadio('maitrise');
+    if(!exp) { showErr('experience', true); ok = false; } else { showErr('experience', false); }
+    if(!freq) { showErr('frequence', true); ok = false; } else { showErr('frequence', false); }
+    if(!region) { showErr('region', true); showFieldErr('region', true); ok = false; } else { showErr('region', false); showFieldErr('region', false); }
+    if(!maitrise) { showErr('maitrise', true); ok = false; } else { showErr('maitrise', false); }
+  }
+  if(n === 2) {
+    const cat = document.getElementById('categorie').value;
+    const veh = document.getElementById('vehicule').value;
+    const cpx = getRadio('complexite');
+    if(!cat) { showErr('categorie', true); showFieldErr('categorie', true); ok = false; } else { showErr('categorie', false); showFieldErr('categorie', false); }
+    if(!veh) { showErr('vehicule', true); showFieldErr('vehicule', true); ok = false; } else { showErr('vehicule', false); showFieldErr('vehicule', false); }
+    if(!cpx) { showErr('complexite', true); ok = false; } else { showErr('complexite', false); }
+  }
+  if(n === 3) {
+    const fields = [
+      {id:'id_temps', min:1, max:600},
+      {id:'id_clicks', min:1, max:300},
+      {id:'eval_temps', min:1, max:600},
+      {id:'eval_clicks', min:1, max:200},
+      {id:'chif_temps', min:1, max:900},
+      {id:'gen_temps', min:1, max:300},
+      {id:'gen_clicks', min:1, max:200},
+    ];
+    fields.forEach(f => {
+      const v = parseInt(document.getElementById(f.id).value);
+      if(isNaN(v) || v < f.min || v > f.max) {
+        showErr(f.id, true); showFieldErr(f.id, true); ok = false;
+      } else { showErr(f.id, false); showFieldErr(f.id, false); }
+    });
+  }
+  if(n === 4) {
+    const res = getRadio('reseau');
+    const inter = getRadio('interruption');
+    const sat = getRadio('satisfaction');
+    if(!res) { showErr('reseau', true); ok = false; } else { showErr('reseau', false); }
+    if(!inter) { showErr('interruption', true); ok = false; } else { showErr('interruption', false); }
+    if(!sat) { showErr('satisfaction', true); ok = false; } else { showErr('satisfaction', false); }
+  }
+  return ok;
+}
+
+function goNext(current) {
+  if(!validateSection(current)) return;
+  currentSection = current + 1;
+  showSection(currentSection);
+}
+function goPrev(current) {
+  currentSection = current - 1;
+  showSection(currentSection);
+}
+
+function buildRecap() {
+  const rows = [
+    ['Expérience', getRadio('experience') || '—'],
+    ['Fréquence', getRadio('frequence') || '—'],
+    ['Région', document.getElementById('region').value || '—'],
+    ['Maîtrise outil', getRadio('maitrise') ? `${getRadio('maitrise')}/5` : '—'],
+    ['Catégorie sinistre', document.getElementById('categorie').value || '—'],
+    ['Type véhicule', document.getElementById('vehicule').value || '—'],
+    ['Complexité', getRadio('complexite') ? `${getRadio('complexite')}/5` : '—'],
+    ['Identification', `${document.getElementById('id_temps').value||'—'} s / ${document.getElementById('id_clicks').value||'—'} clics`],
+    ['Évaluation', `${document.getElementById('eval_temps').value||'—'} s / ${document.getElementById('eval_clicks').value||'—'} clics`],
+    ['Chiffrage', `${document.getElementById('chif_temps').value||'—'} s`],
+    ['Génération', `${document.getElementById('gen_temps').value||'—'} s / ${document.getElementById('gen_clicks').value||'—'} clics`],
+    ['Temps total', `${document.getElementById('total_temps').value||'—'} s`],
+    ['Connexion', getRadio('reseau') || '—'],
+    ['Interruptions', getRadio('interruption') || '—'],
+    ['Satisfaction', getRadio('satisfaction') ? `${getRadio('satisfaction')}/5` : '—'],
+  ];
+  document.getElementById('recap').innerHTML = rows.map(r =>
+    `<div class="summary-row"><span class="sk">${r[0]}</span><span class="sv">${r[1]}</span></div>`
+  ).join('');
+}
+
+function submitForm() {
+  const consent = document.getElementById('consentement').checked;
+  document.getElementById('err-consentement').style.display = consent ? 'none' : 'block';
+  if(!consent) return;
+
+  // Show success
+  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+  document.getElementById('success').style.display = 'block';
+
+  // Fill success summary
+  const id_t = document.getElementById('id_temps').value;
+  const id_c = document.getElementById('id_clicks').value;
+  const ev_t = document.getElementById('eval_temps').value;
+  const ev_c = document.getElementById('eval_clicks').value;
+  const ch_t = document.getElementById('chif_temps').value;
+  const gn_t = document.getElementById('gen_temps').value;
+  const gn_c = document.getElementById('gen_clicks').value;
+  const total = document.getElementById('total_temps').value;
+
+  document.getElementById('successSummary').innerHTML = `
+    <div class="summary-row"><span class="sk">Profil</span><span class="sv">${getRadio('experience')} · ${getRadio('frequence')}</span></div>
+    <div class="summary-row"><span class="sk">Sinistre</span><span class="sv">${document.getElementById('categorie').value}</span></div>
+    <div class="summary-row"><span class="sk">Temps total mesuré</span><span class="sv">${total} secondes</span></div>
+    <div class="summary-row"><span class="sk">Clicks totaux</span><span class="sv">${parseInt(id_c||0)+parseInt(ev_c||0)+parseInt(gn_c||0)} clics</span></div>
+    <div class="summary-row"><span class="sk">Statut</span><span class="sv" style="color:#2A8C5A">✓ Enregistré</span></div>
+  `;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  document.querySelectorAll('input[type=radio]').forEach(r => r.checked = false);
+  document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
+  document.querySelectorAll('input[type=number], input[type=text]:not([readonly]), textarea').forEach(i => i.value = '');
+  document.getElementById('total_temps').value = '';
+  document.getElementById('success').style.display = 'none';
+  document.querySelectorAll('.section').forEach(s => s.style.display = '');
+  currentSection = 1;
+  showSection(1);
+}
+
+// Initial
+updateProgress(1);
+</script>
+</body>
+</html>
